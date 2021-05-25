@@ -1,0 +1,5 @@
+FROM docker.km3net.de/jpp:latest
+
+EXPOSE 9999
+
+ENTRYPOINT ["JLigier","-P","9999"]

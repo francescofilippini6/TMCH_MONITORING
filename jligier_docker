@@ -1,0 +1,17 @@
+FROM docker.km3net.de/km3pipe
+LABEL version="1.0"
+
+ADD  ligier_mirror_dotenv.py /
+ADD .env /
+
+ENV TZ=Europe/Rome
+
+RUN mkdir -p /var/cache/archives/partial &&\
+apt-get autoclean &&\
+apt-get update &&\
+apt-get install -y procps &&\ 
+pip3 install python-dotenv
+
+#CMD ["sleep","10000"]
+CMD ["python3","./ligier_mirror_dotenv.py","-m","IO_MONIT","-q", "9999"]
+#dopo .py ci vuole ip daq "192.168.0.21"

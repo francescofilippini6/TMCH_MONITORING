@@ -1,0 +1,59 @@
+version: '3.4'
+
+services:
+        
+  influxdb:
+    image: influxdb:1.8.5
+    #image: quay.io/influxdb/influxdb:v2.0.3	
+    build:
+        context: .
+        network: host
+    ports:
+      - "8086:8086"
+    expose:
+       - '8086'
+        
+  #influxdb_cli:
+  #  links:
+  #    - influxdb
+  #  image: quay.io/influxdb/influxdb:v2.0.3
+  #  volumes:
+  #    - ./influxdb:/root/.influxdbv2/
+  #  #entrypoint: influx setup --bucket monitoring -t mytoken -o km3net --username=km3net --password=pyrosoma --host http://influxdb:8086 -f
+  #  restart: on-failure:10
+  #  depends_on:
+  #    - influxdb
+  #
+  grafana:
+     image: grafana/grafana
+     restart: always
+     build: 
+        context: .
+        network: host
+     ports:
+       - '3000:3000'
+     expose:
+       - '3000'
+
+  app:
+    image: km3
+    restart: always
+    
+
+  jpp:
+    image: jpp
+    restart: always
+    build:
+        context: .
+        network: host
+    ports:
+      - '9999:9999'
+    expose:
+      - '9999'
+
+  ligier_mirror:
+    image: jlm
+    restart: always
+    build:
+        context: .
+        network: host
