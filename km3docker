@@ -1,0 +1,28 @@
+FROM docker.km3net.de/km3pipe
+LABEL version="1.0"
+
+ADD  grafanaUPLOADER_dotenv.py /
+ADD  csv-to-influxdb_UTC_RP.py /
+ADD  watchdog.sh /
+ADD  GrafanaScript_azione.sh /
+ADD  env_loader.py /
+ADD  .env /
+
+
+ENV TZ=Europe/Rome
+
+RUN mkdir -p /var/cache/archives/partial &&\
+apt-get autoclean &&\
+apt-get update &&\
+apt-get install -y procps &&\
+apt-get install -y inotify-tools &&\
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &&\
+pip3 install influxdb &&\
+pip3 install influxdb-client &&\
+pip3 install python-dotenv
+
+CMD ["python3","env_loader.py"]
+#CMD ["sleep","100000"]
+
+
+

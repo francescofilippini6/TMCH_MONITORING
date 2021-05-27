@@ -8,7 +8,7 @@
 import signal
 import sys
 import subprocess
-
+import re
 import collections
 from collections import defaultdict
 import io
@@ -75,10 +75,11 @@ class UDPAnalyser(Module):
         self.clock_reset_counter = defaultdict(int)
                
         #self.filecounter = 0
-        
+        #self.duname=int(self.get('duname'))
         self.filename = ""
+        self.du_directory=sys.argv[1]
         self.time_run_change = 0
-        
+        self.duname=int(re.split('(\d+)',self.du_directory)[1])
         detector=os.getenv('DETECTOR')
         #self.clbmap = db.CLBMap("D_BCI0004")
         self.clbmap = db.CLBMap(detector)
@@ -166,12 +167,12 @@ class UDPAnalyser(Module):
         #datetime.fromtimestamp(self.time[dom_id]*1e-3).strftime('%Y-%m-%d %H:%M:%S.%f')
 
         
-        self.testdf.loc[len(self.testdf)+1] = [1,self.detector_oid,self.run_id[dom_id],self.Dom_id_name,self.packet_machine_time[dom_id],self.time[dom_id],self.dt[dom_id],self.dt_packets[dom_id],self.loss_ratio[dom_id],self.ratio[dom_id],self.total_number_udps[dom_id],self.n_expected_packets[dom_id],self.machine_expected[dom_id],self.clock_reset_counter[dom_id]]
+        self.testdf.loc[len(self.testdf)+1] = [self.duname,self.detector_oid,self.run_id[dom_id],self.Dom_id_name,self.packet_machine_time[dom_id],self.time[dom_id],self.dt[dom_id],self.dt_packets[dom_id],self.loss_ratio[dom_id],self.ratio[dom_id],self.total_number_udps[dom_id],self.n_expected_packets[dom_id],self.machine_expected[dom_id],self.clock_reset_counter[dom_id]]
 
         if self.Dom_id_name==2:
             #print(self.return_timedelta(dom_id))
             if self.return_timedelta(dom_id)>self.interval:
-                self.filename = os.getcwd()+'/grafanarepo/test_grafana_RUN'+str(self.run_id[dom_id])+"_"+ str(self.filecounter)+ ".csv"
+                self.filename = os.getcwd()+'/grafanarepo/'+self.du_directory+'/test_grafana_RUN'+str(self.run_id[dom_id])+"_"+ str(self.filecounter)+ ".csv"
                 print('writing dataframe ',self.filename)                
                 #self.write_header(tmch_data.run)
                 self.write_data_into_file()
@@ -309,10 +310,9 @@ def main():
     pipe = kp.Pipeline(timeit=True)
     pipe.attach(kp.io.CHPump, host=host_ip,
                               port=9999,
-                              tags='IO_DU1',
+                              tags=sys.argv[1],
                               timeout=60*20,
                               max_queue=10000000000)
-    #    pipe.attach(UDPAnalyser, detector=detector)                                                                                                                                                                                                         
     pipe.attach(UDPAnalyser)
 
     pipe.drain()
